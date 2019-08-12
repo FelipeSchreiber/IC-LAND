@@ -50,22 +50,22 @@ def getRecords(filename):
 	return records
 	f.close()
 
-def getIps(filename):
+def getIps(filename,app):
 	records = getRecords(filename)
 	ips = []
 	for record in records:
 		for i in record["body"]:
 			if "appCommunications" in i:
-				if i["appCommunications"]["applicationNames"] == "Eyeplus":
+				if i["appCommunications"]["applicationNames"] == app:
 					ips.append(i["appCommunications"]["daddr"])
 	return ips
 
-def getIpLocations(filename):
-	ips = getIps(filename)
-	ip = ips[len(ips)-1]
-	print ("\n"+ip)
+def getIpLocations(filename,app):
+	ips = set (getIps(filename,app) )
+	#ip = ips[len(ips)-1]
+	#print ("\n"+ip)
 	ipLocations = []
-	f = open("ipLocations.txt","w+")
+	f = open("ipLocations_"+app+".txt","w+")
 	f.write("[\n")
 	driver = webdriver.Firefox()
 	myPattern = re.compile('({.*?})')
@@ -79,8 +79,8 @@ def getIpLocations(filename):
 		f.write(Json_str+",")
 		ipLocations.append(ipLocation)
 	f.close()
-	os.system("sed -i '$ s/.$/]/' %s"%"ipLocations.txt")#substitui a ultima virgula por "]"
+	os.system("sed -i '$ s/.$/]/' %s"%"ipLocations_"+app+".txt")#substitui a ultima virgula por "]"
 	driver.close()
 	return ipLocations
-getIpLocations("insane_test-2019-05-25.json")
+getIpLocations("insane_test-2019-06-13.json","Eyeplus")
 #transformToJsonList("insane_test-2019-05-25.json")
